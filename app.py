@@ -10,12 +10,8 @@ import requests
 
 st.set_page_config(page_title="Insider Threat Detection", page_icon="🛡️", layout="wide")
 
-
-GEMINI_MODEL = "gemini-2.5-flash"
-GEMINI_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/"
-    f"models/{GEMINI_MODEL}:generateContent"
-)
+GEMINI_MODEL = "gemini-3.8-flash"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/interactions"
 REQUEST_TIMEOUT_SECONDS = 120
 
 
@@ -168,21 +164,17 @@ End with one sentence: treat this as a priority for human review, not as a concl
         )
 
     response = requests.post(
-        GEMINI_URL,
-        params={"key": api_key},
-        json={
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [{"text": prompt}],
-                }
-            ],
-            "generationConfig": {
-                "temperature": float(temperature),
+            GEMINI_URL,
+            headers={
+                "Content-Type": "application/json",
+                "x-goog-api-key": api_key,
             },
-        },
-        timeout=REQUEST_TIMEOUT_SECONDS,
-    )
+            json={
+                "model": GEMINI_MODEL,
+                "input": prompt,
+            },
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
 
     if not response.ok:
         try:
@@ -192,15 +184,9 @@ End with one sentence: treat this as a priority for human review, not as a concl
         raise RuntimeError(
             f"Gemini API returned HTTP {response.status_code}: {error_detail}"
         )
-    data = response.json()
 
-    answer = (
-        data.get("candidates", [{}])[0]
-        .get("content", {})
-        .get("parts", [{}])[0]
-        .get("text", "")
-        .strip()
-    )
+    data = response.json()
+    answer = data.get("output_text", "").strip()
 
     if not answer:
         raise ValueError(
