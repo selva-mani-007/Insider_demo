@@ -1,0 +1,21 @@
+# Run this cell at the END of your existing Kaggle notebook, after Section 5
+# has created test_df, user_ext, train_df, and the extended-model columns.
+# It does not retrain the model.
+
+import os
+
+# Ensure the extended scores and predictions are present in test_df.
+# Your Section 5 already assigns test_df['ext_score'] and test_df['ext_predicted'].
+test_df.to_csv('/kaggle/working/test_windows_with_extended_scores.csv', index=False)
+user_ext.to_csv('/kaggle/working/extended_user_results.csv', index=False)
+train_df.to_csv('/kaggle/working/train_windows.csv', index=False)
+
+print('Saved demo files:')
+for p in [
+    '/kaggle/working/test_windows_with_extended_scores.csv',
+    '/kaggle/working/extended_user_results.csv',
+    '/kaggle/working/train_windows.csv',
+]:
+    print(p, os.path.getsize(p) / (1024 * 1024), 'MB')
+
+# Download these three CSV files from Kaggle Output, then upload them in the Streamlit app.
